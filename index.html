@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vocabulary Quiz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #eef4ff, #dfe9f3);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #111827;
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 28px;
+      font-size: 1rem;
+    }
+
+    .progress {
+      font-weight: bold;
+      color: #374151;
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+
+    .card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .question-label {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
+    }
+
+    .question {
+      font-size: 1.7rem;
+      font-weight: bold;
+      color: #111827;
+      margin-bottom: 24px;
+    }
+
+    .options {
+      display: grid;
+      gap: 14px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      padding: 16px 18px;
+      border: 2px solid #d1d5db;
+      background: white;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1.5;
+      transition: 0.2s ease;
+    }
+
+    .option:hover {
+      border-color: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .option.selected {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+
+    .feedback {
+      margin-top: 18px;
+      min-height: 28px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .feedback.ok {
+      color: #15803d;
+    }
+
+    .feedback.bad {
+      color: #dc2626;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    #checkBtn {
+      background: #111827;
+      color: white;
+    }
+
+    #nextBtn {
+      background: #2563eb;
+      color: white;
+      display: none;
+    }
+
+    .score {
+      margin-top: 14px;
+      color: #4b5563;
+      font-size: 0.95rem;
+    }
+
+    .final-screen {
+      display: none;
+      text-align: center;
+      padding: 20px 10px;
+    }
+
+    .final-screen h2 {
+      font-size: 2rem;
+      color: #15803d;
+      margin-bottom: 10px;
+    }
+
+    .final-screen p {
+      color: #374151;
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+    }
+
+    #restartBtn {
+      background: #111827;
+      color: white;
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        padding: 20px;
+      }
+
+      .question {
+        font-size: 1.3rem;
+      }
+
+      .option {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Vocabulary Quiz</h1>
+    <p class="subtitle">Choose the correct definition in English.</p>
+
+    <div id="quizScreen">
+      <div class="progress" id="progress"></div>
+
+      <div class="card">
+        <div class="question-label">Word:</div>
+        <div class="question" id="question"></div>
+
+        <div class="options" id="options"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="actions">
+          <button class="btn" id="checkBtn">Check answer</button>
+          <button class="btn" id="nextBtn">Next</button>
+        </div>
+
+        <div class="score" id="score"></div>
+      </div>
+    </div>
+
+    <div class="final-screen" id="finalScreen">
+      <h2>Congratulations!</h2>
+      <p>You completed the vocabulary quiz successfully.</p>
+      <p id="finalScore"></p>
+      <button class="btn" id="restartBtn">Play again</button>
+    </div>
+  </div>
+
+  <script>
+    const allDefinitions = [
+      "Computer systems modelled on the human brain’s structure and functioning.",
+      "The use of systems or machines to perform tasks without human intervention.",
+      "Large volumes of data that can be analysed to reveal patterns and trends.",
+      "A step-by-step procedure used for calculations and problem-solving.",
+      "Systems that mimic human thought processes.",
+      "A branch of AI where machines learn from data.",
+      "The study of moral issues related to AI development and use.",
+      "Forecasting trends based on data.",
+      "Self-driving cars that use AI to operate.",
+      "Programs like Alexa and Siri that assist users.",
+      "Overlaying digital information on the real world.",
+      "The ability to adjust to new situations or challenges.",
+      "The ability to complete tasks using the least amount of time or resources.",
+      "Measurable technical abilities required for specific tasks.",
+      "The ability to communicate and interact effectively with others.",
+      "Working together with others to achieve a common goal.",
+      "Organising and planning your time effectively to complete tasks.",
+      "Non-technical abilities that help in teamwork and communication.",
+      "Finding solutions to challenges or difficult situations.",
+      "Information spread to promote a cause, often biased or misleading.",
+      "The ability to assess, analyse and evaluate digital media content critically.",
+      "The process of ensuring the accuracy of information.",
+      "Media altered to deceive or mislead audiences.",
+      "When algorithms unfairly favour or promote one group or idea.",
+      "The international pool of employees and professionals.",
+      "The process of moving to a different place for work.",
+      "Certificates, degrees or training that prove your skills.",
+      "An official document that allows a person to work in a foreign country.",
+      "A company that helps employers find suitable job candidates.",
+      "A state of being healthy, happy and comfortable.",
+      "The ability to manage work responsibilities and personal life effectively.",
+      "Extreme mental and physical exhaustion caused by prolonged stress.",
+      "A mental practice focused on being fully present in the moment.",
+      "Techniques and strategies used to reduce physical or emotional tension.",
+      "Healthy habits that improve sleep quality.",
+      "Regular behaviours related to healthy eating.",
+      "Activities done to maintain personal health and happiness.",
+      "A period of time when a person avoids using digital devices to reduce stress.",
+      "The ability to get tasks done efficiently and effectively.",
+      "A person who subscribes to another user’s updates on social media.",
+      "To publish content online, such as a photo, text or comment.",
+      "A stream of updates or posts on a social media platform.",
+      "A user’s personal page showing their information and activity.",
+      "To link a person or topic in a social media post.",
+      "When content spreads very quickly across the internet.",
+      "A response written under a post or photo.",
+      "A quick way to show approval or emotion on a social media post.",
+      "A word or phrase preceded by # used to group related content.",
+      "A private communication between users on social media.",
+      "The use of digital media to harass or threaten someone.",
+      "The trail of data left behind from online activity."
+    ];
+
+    const questions = [
+      {
+        word: "Neural Networks",
+        correct: "Computer systems modelled on the human brain’s structure and functioning."
+      },
+      {
+        word: "Automation",
+        correct: "The use of systems or machines to perform tasks without human intervention."
+      },
+      {
+        word: "Big Data",
+        correct: "Large volumes of data that can be analysed to reveal patterns and trends."
+      },
+      {
+        word: "Algorithm",
+        correct: "A step-by-step procedure used for calculations and problem-solving."
+      },
+      {
+        word: "Cognitive Computing",
+        correct: "Systems that mimic human thought processes."
+      },
+      {
+        word: "Machine Learning",
+        correct: "A branch of AI where machines learn from data."
+      },
+      {
+        word: "AI Ethics",
+        correct: "The study of moral issues related to AI development and use."
+      },
+      {
+        word: "Predictive Analytics",
+        correct: "Forecasting trends based on data."
+      },
+      {
+        word: "Autonomous Vehicles",
+        correct: "Self-driving cars that use AI to operate."
+      },
+      {
+        word: "Virtual Assistants",
+        correct: "Programs like Alexa and Siri that assist users."
+      },
+      {
+        word: "Augmented Reality",
+        correct: "Overlaying digital information on the real world."
+      },
+      {
+        word: "Resilience",
+        correct: "The ability to adjust to new situations or challenges."
+      },
+      {
+        word: "Efficiency",
+        correct: "The ability to complete tasks using the least amount of time or resources."
+      },
+      {
+        word: "Job-specific competencies (hard skills)",
+        correct: "Measurable technical abilities required for specific tasks."
+      },
+      {
+        word: "People skills",
+        correct: "The ability to communicate and interact effectively with others."
+      },
+      {
+        word: "Collaboration",
+        correct: "Working together with others to achieve a common goal."
+      },
+      {
+        word: "Effective scheduling",
+        correct: "Organising and planning your time effectively to complete tasks."
+      },
+      {
+        word: "Interpersonal competencies (soft skills)",
+        correct: "Non-technical abilities that help in teamwork and communication."
+      },
+      {
+        word: "Critical thinking",
+        correct: "Finding solutions to challenges or difficult situations."
+      },
+      {
+        word: "Propaganda",
+        correct: "Information spread to promote a cause, often biased or misleading."
+      },
+      {
+        word: "Media literacy",
+        correct: "The ability to assess, analyse and evaluate digital media content critically."
+      },
+      {
+        word: "Verification",
+        correct: "The process of ensuring the accuracy of information."
+      },
+      {
+        word: "Manipulated content",
+        correct: "Media altered to deceive or mislead audiences."
+      },
+      {
+        word: "Algorithm bias",
+        correct: "When algorithms unfairly favour or promote one group or idea."
+      },
+      {
+        word: "Global workforce",
+        correct: "The international pool of employees and professionals."
+      },
+      {
+        word: "Relocation",
+        correct: "The process of moving to a different place for work."
+      },
+      {
+        word: "Qualifications",
+        correct: "Certificates, degrees or training that prove your skills."
+      },
+      {
+        word: "Work permit",
+        correct: "An official document that allows a person to work in a foreign country."
+      },
+      {
+        word: "Recruitment agency",
+        correct: "A company that helps employers find suitable job candidates."
+      },
+      {
+        word: "Well-being",
+        correct: "A state of being healthy, happy and comfortable."
+      },
+      {
+        word: "Work-life balance",
+        correct: "The ability to manage work responsibilities and personal life effectively."
+      },
+      {
+        word: "Burnout",
+        correct: "Extreme mental and physical exhaustion caused by prolonged stress."
+      },
+      {
+        word: "Mindfulness",
+        correct: "A mental practice focused on being fully present in the moment."
+      },
+      {
+        word: "Stress management",
+        correct: "Techniques and strategies used to reduce physical or emotional tension."
+      },
+      {
+        word: "Sleep hygiene",
+        correct: "Healthy habits that improve sleep quality."
+      },
+      {
+        word: "Nutritional habits",
+        correct: "Regular behaviours related to healthy eating."
+      },
+      {
+        word: "Self-care",
+        correct: "Activities done to maintain personal health and happiness."
+      },
+      {
+        word: "Digital detox",
+        correct: "A period of time when a person avoids using digital devices to reduce stress."
+      },
+      {
+        word: "Productivity",
+        correct: "The ability to get tasks done efficiently and effectively."
+      },
+      {
+        word: "Follower",
+        correct: "A person who subscribes to another user’s updates on social media."
+      },
+      {
+        word: "To post",
+        correct: "To publish content online, such as a photo, text or comment."
+      },
+      {
+        word: "Feed",
+        correct: "A stream of updates or posts on a social media platform."
+      },
+      {
+        word: "Profile",
+        correct: "A user’s personal page showing their information and activity."
+      },
+      {
+        word: "Tag",
+        correct: "To link a person or topic in a social media post."
+      },
+      {
+        word: "Go viral",
+        correct: "When content spreads very quickly across the internet."
+      },
+      {
+        word: "Comment",
+        correct: "A response written under a post or photo."
+      },
+      {
+        word: "Like / Reaction",
+        correct: "A quick way to show approval or emotion on a social media post."
+      },
+      {
+        word: "Hashtag",
+        correct: "A word or phrase preceded by # used to group related content."
+      },
+      {
+        word: "Direct message (DM)",
+        correct: "A private communication between users on social media."
+      },
+      {
+        word: "Cyberbullying",
+        correct: "The use of digital media to harass or threaten someone."
+      },
+      {
+        word: "Digital footprint",
+        correct: "The trail of data left behind from online activity."
+      }
+    ];
+
+    function shuffleArray(array) {
+      return [...array].sort(() => Math.random() - 0.5);
+    }
+
+    function getOptions(correctAnswer) {
+      const wrongOptions = allDefinitions.filter(def => def !== correctAnswer);
+      const shuffledWrong = shuffleArray(wrongOptions).slice(0, 2);
+      return shuffleArray([correctAnswer, ...shuffledWrong]);
+    }
+
+    let currentQuestion = 0;
+    let selectedOption = null;
+    let score = 0;
+    let locked = false;
+
+    const progress = document.getElementById("progress");
+    const question = document.getElementById("question");
+    const optionsContainer = document.getElementById("options");
+    const feedback = document.getElementById("feedback");
+    const scoreText = document.getElementById("score");
+    const checkBtn = document.getElementById("checkBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const quizScreen = document.getElementById("quizScreen");
+    const finalScreen = document.getElementById("finalScreen");
+    const finalScore = document.getElementById("finalScore");
+    const restartBtn = document.getElementById("restartBtn");
+
+    function renderQuestion() {
+      const current = questions[currentQuestion];
+      const options = getOptions(current.correct);
+
+      selectedOption = null;
+      locked = false;
+      feedback.textContent = "";
+      feedback.className = "feedback";
+      nextBtn.style.display = "none";
+      checkBtn.style.display = "inline-block";
+
+      progress.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+      question.textContent = current.word;
+      scoreText.textContent = `Correct answers: ${score}`;
+
+      optionsContainer.innerHTML = "";
+
+      options.forEach(optionText => {
+        const button = document.createElement("button");
+        button.className = "option";
+        button.textContent = optionText;
+
+        button.addEventListener("click", () => {
+          if (locked) return;
+
+          document.querySelectorAll(".option").forEach(opt => {
+            opt.classList.remove("selected");
+          });
+
+          button.classList.add("selected");
+          selectedOption = optionText;
+        });
+
+        optionsContainer.appendChild(button);
+      });
+    }
+
+    checkBtn.addEventListener("click", () => {
+      if (!selectedOption) {
+        feedback.textContent = "Choose one option first.";
+        feedback.className = "feedback bad";
+        return;
+      }
+
+      const current = questions[currentQuestion];
+
+      if (selectedOption === current.correct) {
+        feedback.textContent = "Correct.";
+        feedback.className = "feedback ok";
+        locked = true;
+        score++;
+        scoreText.textContent = `Correct answers: ${score}`;
+        checkBtn.style.display = "none";
+        nextBtn.style.display = "inline-block";
+      } else {
+        feedback.textContent = "That is wrong. You cannot continue until you choose the correct answer.";
+        feedback.className = "feedback bad";
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      currentQuestion++;
+
+      if (currentQuestion < questions.length) {
+        renderQuestion();
+      } else {
+        showFinalScreen();
+      }
+    });
+
+    function showFinalScreen() {
+      quizScreen.style.display = "none";
+      finalScreen.style.display = "block";
+      finalScore.textContent = `Final score: ${score} / ${questions.length}`;
+    }
+
+    restartBtn.addEventListener("click", () => {
+      currentQuestion = 0;
+      selectedOption = null;
+      score = 0;
+      locked = false;
+      finalScreen.style.display = "none";
+      quizScreen.style.display = "block";
+      renderQuestion();
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
